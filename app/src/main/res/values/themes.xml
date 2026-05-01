@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.ReverseAlarm" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+</resources>

@@ -1,0 +1,16 @@
+# Android Studio / IntelliJ
+.idea/
+*.iml
+app/build*/
+build/
+.gradle/
+*.apk
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# My scripts
+scripts/
+build_log_v2.txt
+*.apk

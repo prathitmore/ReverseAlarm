@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Reverse Alarm</string>
+    <string name="title_activity_main">Reverse Alarm</string>
+
+    <string name="admin_label">Reverse Alarm Protection</string>
+    <string name="admin_description">Prevents uninstalling the app while sleep mode is active.</string>
+
+    <string name="accessibility_label">Reverse Alarm Blocker</string>
+    <string name="accessibility_description">Used to prevent app switching and interaction during sleep mode lock.</string>
+    
+    <string name="permission_required_title">Permissions Required</string>
+    <string name="permission_required_desc">This app needs special permissions to function correctly.</string>
+</resources>
