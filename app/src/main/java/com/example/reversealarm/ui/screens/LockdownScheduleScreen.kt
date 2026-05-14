@@ -41,7 +41,8 @@ fun LockdownScheduleScreen(
     alarmRepository: com.example.reversealarm.data.AlarmRepository, // Add Repository
     alarmId: Int? = null,
     isEditMode: Boolean = false, // Kept for UI logic, but effectively checking alarmId too
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSave: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -143,7 +144,7 @@ fun LockdownScheduleScreen(
                         AlarmScheduler.scheduleAlarm(context, insertedAlarm)
                     }
                     
-                    onBack()
+                    onSave()
                 }
             }) {
                 Text(if (isEditMode) "Done" else "Save", color = Color(0xFF64B5F6), fontSize = 16.sp)

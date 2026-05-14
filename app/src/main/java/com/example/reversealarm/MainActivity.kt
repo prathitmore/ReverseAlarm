@@ -94,12 +94,20 @@ fun MainNavigation(alarmRepository: AlarmRepository) {
     val scope = rememberCoroutineScope()
     var backPressCount by remember { mutableIntStateOf(0) }
     var hasSeenTutorial by remember { mutableStateOf<Boolean?>(null) }
+    var isPremium by remember { mutableStateOf(false) }
     var forceShowTutorial by remember { mutableStateOf(false) }
     var tutorialReplayCounter by remember { mutableIntStateOf(0) }
     
     LaunchedEffect(Unit) {
-        userPrefs.hasSeenTutorial.collect { seen ->
-            hasSeenTutorial = seen
+        launch {
+            userPrefs.hasSeenTutorial.collect { seen ->
+                hasSeenTutorial = seen
+            }
+        }
+        launch {
+            userPrefs.isPremium.collect { prem ->
+                isPremium = prem
+            }
         }
     }
 
@@ -108,7 +116,7 @@ fun MainNavigation(alarmRepository: AlarmRepository) {
     }
 
     androidx.activity.compose.BackHandler(enabled = true) {
-        if (currentScreen == "schedule") {
+        if (currentScreen == "schedule" || currentScreen == "ad_interstitial") {
             currentScreen = "home"
         } else {
             if (backPressCount == 0) {
@@ -135,7 +143,15 @@ fun MainNavigation(alarmRepository: AlarmRepository) {
                  alarmRepository = alarmRepository,
                  alarmId = editingAlarmId,
                  isEditMode = editingAlarmId != null,
-                 onBack = { currentScreen = "home" } 
+                 onBack = { currentScreen = "home" },
+                 onSave = { 
+                     if (isPremium) currentScreen = "home" else currentScreen = "ad_interstitial" 
+                 }
+             )
+        } else if (currentScreen == "ad_interstitial") {
+             com.example.reversealarm.ui.screens.AdScreen(
+                 userPreferences = userPrefs,
+                 onContinue = { currentScreen = "home" }
              )
         } else {
             // Main flow with Bottom Nav

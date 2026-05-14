@@ -21,6 +21,7 @@ class UserPreferencesRepository @Inject constructor(
     private val PREF_LOCKDOWN_DISABLED_PERMANENTLY = booleanPreferencesKey("lockdown_disabled_perm")
     private val PREF_HIDDEN_EXIT_USED = booleanPreferencesKey("hidden_exit_used")
     private val PREF_HAS_SEEN_TUTORIAL = booleanPreferencesKey("has_seen_tutorial")
+    private val PREF_IS_PREMIUM = booleanPreferencesKey("is_premium")
     
     // Schedule
     private val PREF_START_HOUR = intPreferencesKey("start_hour")
@@ -36,6 +37,7 @@ class UserPreferencesRepository @Inject constructor(
     val isArmed: Flow<Boolean> = context.dataStore.data.map { it[PREF_IS_ARMED] ?: false }
     val hasSeenTutorial: Flow<Boolean> = context.dataStore.data.map { it[PREF_HAS_SEEN_TUTORIAL] ?: false }
     val isLockActiveFlow: Flow<Boolean> = context.dataStore.data.map { it[PREF_LOCK_ACTIVE] ?: false }
+    val isPremium: Flow<Boolean> = context.dataStore.data.map { it[PREF_IS_PREMIUM] ?: false }
 
     // Advanced
     private val PREF_REPEAT_DAYS = stringPreferencesKey("repeat_days") // CSV "1,2,3"
@@ -141,5 +143,11 @@ class UserPreferencesRepository @Inject constructor(
     
     suspend fun isLockActive(): Boolean {
         return context.dataStore.data.first()[PREF_LOCK_ACTIVE] ?: false
+    }
+
+    suspend fun setPremium(isPremium: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PREF_IS_PREMIUM] = isPremium
+        }
     }
 }
