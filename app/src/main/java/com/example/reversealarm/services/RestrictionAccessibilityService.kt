@@ -6,6 +6,7 @@ import android.view.accessibility.AccessibilityEvent
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RestrictionAccessibilityService : AccessibilityService() {
@@ -21,7 +22,12 @@ class RestrictionAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        // Configuration is set via XML
+        val userPrefs = com.example.reversealarm.data.UserPreferencesRepository(applicationContext)
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            userPrefs.isLockActiveFlow.collect { active ->
+                isLockActive = active
+            }
+        }
     }
 
     // State to avoid spamming service calls

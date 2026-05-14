@@ -1,0 +1,56 @@
+Configuration on demand is an incubating feature.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugv2Build UP-TO-DATE
+> Task :app:mergeDebugv2NativeDebugMetadata NO-SOURCE
+> Task :app:checkDebugv2AarMetadata UP-TO-DATE
+> Task :app:generateDebugv2ResValues UP-TO-DATE
+> Task :app:mapDebugv2SourceSetPaths UP-TO-DATE
+> Task :app:generateDebugv2Resources UP-TO-DATE
+> Task :app:mergeDebugv2Resources UP-TO-DATE
+> Task :app:packageDebugv2Resources UP-TO-DATE
+> Task :app:parseDebugv2LocalResources UP-TO-DATE
+> Task :app:createDebugv2CompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebugv2 UP-TO-DATE
+> Task :app:processDebugv2MainManifest UP-TO-DATE
+> Task :app:processDebugv2Manifest UP-TO-DATE
+> Task :app:processDebugv2ManifestForPackage UP-TO-DATE
+> Task :app:processDebugv2Resources UP-TO-DATE
+> Task :app:javaPreCompileDebugv2 UP-TO-DATE
+> Task :app:mergeDebugv2Shaders UP-TO-DATE
+> Task :app:compileDebugv2Shaders NO-SOURCE
+> Task :app:generateDebugv2Assets UP-TO-DATE
+> Task :app:mergeDebugv2Assets UP-TO-DATE
+> Task :app:compressDebugv2Assets UP-TO-DATE
+> Task :app:checkDebugv2DuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugv2FileDependencies UP-TO-DATE
+> Task :app:mergeDebugv2StartupProfile UP-TO-DATE
+> Task :app:mergeExtDexDebugv2 UP-TO-DATE
+> Task :app:mergeLibDexDebugv2 UP-TO-DATE
+> Task :app:mergeDebugv2JniLibFolders UP-TO-DATE
+> Task :app:mergeDebugv2NativeLibs NO-SOURCE
+> Task :app:stripDebugv2DebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugv2 UP-TO-DATE
+> Task :app:writeDebugv2AppMetadata UP-TO-DATE
+> Task :app:writeDebugv2SigningConfigVersions UP-TO-DATE
+> Task :app:kspDebugv2Kotlin
+> Task :app:compileDebugv2Kotlin
+> Task :app:compileDebugv2JavaWithJavac
+> Task :app:hiltAggregateDepsDebugv2 UP-TO-DATE
+> Task :app:hiltJavaCompileDebugv2
+> Task :app:processDebugv2JavaRes UP-TO-DATE
+> Task :app:mergeDebugv2JavaResource UP-TO-DATE
+> Task :app:transformDebugv2ClassesWithAsm
+> Task :app:dexBuilderDebugv2
+> Task :app:mergeProjectDexDebugv2
+> Task :app:packageDebugv2
+> Task :app:createDebugv2ApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebugv2
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.7/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 9s
+38 actionable tasks: 8 executed, 30 up-to-date

@@ -214,13 +214,19 @@ object AlarmScheduler {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val clockInfo = AlarmManager.AlarmClockInfo(timeInMillis, pendingIntent)
-            alarmManager.setAlarmClock(clockInfo, pendingIntent)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
-        } else {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val clockInfo = AlarmManager.AlarmClockInfo(timeInMillis, pendingIntent)
+                alarmManager.setAlarmClock(clockInfo, pendingIntent)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
+            } else {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
+            }
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            // Fallback to inexact alarm if Exact Alarm permission was revoked
+            alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
         }
     }
 

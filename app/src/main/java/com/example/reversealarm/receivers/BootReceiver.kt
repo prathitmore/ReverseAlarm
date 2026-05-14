@@ -23,17 +23,31 @@ class BootReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == "android.intent.action.QUICKBOOT_POWERON") {
             val pendingResult = goAsync()
             
             // Manual Injection
             val appContext = context.applicationContext ?: throw IllegalStateException("No App Context")
             val entryPoint = EntryPointAccessors.fromApplication(appContext, BootReceiverEntryPoint::class.java)
             val alarmRepository = entryPoint.alarmRepository()
+            val userPreferences = UserPreferencesRepository(appContext)
 
-            // 1. Reschedule Alarms
+            // 1. Reschedule Alarms & Resume Lockdown
             CoroutineScope(Dispatchers.IO).launch {
                 try {
+                    // Resume lockdown if active before reboot
+                    if (userPreferences.isLockActive()) {
+                        val serviceIntent = Intent(context, com.example.reversealarm.services.LockOverlayService::class.java).apply {
+                            action = com.example.reversealarm.services.LockOverlayService.ACTION_START_LOCK
+                        }
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            context.startForegroundService(serviceIntent)
+                        } else {
+                            context.startService(serviceIntent)
+                        }
+                    }
+
+                    // Reschedule
                     val alarms = alarmRepository.getActiveAlarmsSync()
                     for (alarm in alarms) {
                         AlarmScheduler.scheduleAlarm(context, alarm)

@@ -35,6 +35,7 @@ class UserPreferencesRepository @Inject constructor(
     val isLockdownDisabled: Flow<Boolean> = context.dataStore.data.map { it[PREF_LOCKDOWN_DISABLED_PERMANENTLY] ?: false }
     val isArmed: Flow<Boolean> = context.dataStore.data.map { it[PREF_IS_ARMED] ?: false }
     val hasSeenTutorial: Flow<Boolean> = context.dataStore.data.map { it[PREF_HAS_SEEN_TUTORIAL] ?: false }
+    val isLockActiveFlow: Flow<Boolean> = context.dataStore.data.map { it[PREF_LOCK_ACTIVE] ?: false }
 
     // Advanced
     private val PREF_REPEAT_DAYS = stringPreferencesKey("repeat_days") // CSV "1,2,3"
