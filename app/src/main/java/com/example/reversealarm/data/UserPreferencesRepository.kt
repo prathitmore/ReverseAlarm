@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -135,5 +136,9 @@ class UserPreferencesRepository @Inject constructor(
                 it[PREF_LOCK_START_TIMESTAMP] = System.currentTimeMillis()
             }
         }
+    }
+    
+    suspend fun isLockActive(): Boolean {
+        return context.dataStore.data.first()[PREF_LOCK_ACTIVE] ?: false
     }
 }

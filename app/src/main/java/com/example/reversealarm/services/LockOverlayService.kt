@@ -47,6 +47,7 @@ class LockOverlayService : Service() {
     private var mediaPlayer: android.media.MediaPlayer? = null
     private var vibrator: android.os.Vibrator? = null
     private var isRinging = false
+    private var ringWakeLock: android.os.PowerManager.WakeLock? = null
     
     // Hidden Exit States
     private var tapCount = 0
@@ -77,7 +78,22 @@ class LockOverlayService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
+        if (intent == null) {
+            // Service was killed and restarted by system
+            CoroutineScope(Dispatchers.IO).launch {
+                val wasActive = userPreferences.isLockActive()
+                if (wasActive) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        startLockdownSequence()
+                    }
+                } else {
+                    stopSelf()
+                }
+            }
+            return START_STICKY
+        }
+
+        when (intent.action) {
             ACTION_START_LOCK -> {
                 startLockdownSequence()
                 
@@ -151,6 +167,7 @@ class LockOverlayService : Service() {
                          CoroutineScope(Dispatchers.Main).launch {
                             if (RestrictionAccessibilityService.isLockActive) {
                                 // Already locked, do nothing (or bring to front?)
+                                showOverlay() // Ensure it's there
                             } else {
                                 // If for some reason state was confused, re-lock
                                 startLockdownSequence()
@@ -260,7 +277,9 @@ class LockOverlayService : Service() {
                 WindowManager.LayoutParams.TYPE_PHONE,
             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD,
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.TOP or Gravity.START
@@ -381,7 +400,7 @@ class LockOverlayService : Service() {
         )
 
         val notification = NotificationCompat.Builder(this, RING_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Use your app icon
+            .setSmallIcon(R.mipmap.ic_launcher_foreground) // Use your app icon
             .setContentTitle("WAKE UP!")
             .setContentText("Your scheduled lock has ended.")
             .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -392,6 +411,14 @@ class LockOverlayService : Service() {
             .build()
             
         startForeground(2, notification) // Higher ID for ring
+        
+        // Acquire WakeLock to keep screen on while ringing
+        val powerManager = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+        ringWakeLock = powerManager.newWakeLock(
+            android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK or android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP,
+            "ReverseAlarm:RingingWakeLock"
+        )
+        ringWakeLock?.acquire(10 * 60 * 1000L) // 10 minutes max
         
         // Start Sound/Vibration
         CoroutineScope(Dispatchers.IO).launch {
@@ -441,6 +468,9 @@ class LockOverlayService : Service() {
         mediaPlayer?.release()
         mediaPlayer = null
         vibrator?.cancel()
+        if (ringWakeLock?.isHeld == true) {
+            ringWakeLock?.release()
+        }
     }
 
     private fun createNotification(): Notification {

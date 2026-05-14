@@ -177,6 +177,21 @@ fun HomeScreen(
                         }
                     }
                 }
+
+                // AdSense / AdMob Placeholder
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(text = "AD test (AdSense/AdMob Placeholder)", color = Color.White)
+                        }
+                    }
+                }
             }
         }
     }
