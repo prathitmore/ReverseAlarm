@@ -35,6 +35,8 @@ fun PermissionScreen(
     hasBatteryOptimization: Boolean,
     hasNotificationPermission: Boolean,
     hasAlarmPermission: Boolean,
+    hasDndPermission: Boolean,
+    hasPhoneStatePermission: Boolean,
     onContinue: () -> Unit
 ) {
     val context = LocalContext.current
@@ -164,13 +166,39 @@ fun PermissionScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
+        PermissionItem(
+            title = "7. Do Not Disturb Access",
+            description = "Required to mute other notifications during sleep.",
+            isGranted = hasDndPermission,
+            onClick = {
+                val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+                context.startActivity(intent)
+            }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PermissionItem(
+            title = "8. Phone Call Permission",
+            description = "Required to detect incoming calls and let you answer them.",
+            isGranted = hasPhoneStatePermission,
+            onClick = {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                context.startActivity(intent)
+                android.widget.Toast.makeText(context, "Please allow 'Phone' permission in App Info", android.widget.Toast.LENGTH_LONG).show()
+            }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             onClick = onContinue,
             enabled = hasOverlay && hasAccessibility && hasDeviceAdmin && hasBatteryOptimization &&
                     (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU || hasNotificationPermission) &&
-                    (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S || hasAlarmPermission),
+                    (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S || hasAlarmPermission) &&
+                    hasDndPermission && hasPhoneStatePermission,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("I'm Ready to Sleep")

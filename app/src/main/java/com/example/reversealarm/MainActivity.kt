@@ -61,6 +61,8 @@ fun MainNavigation(alarmRepository: AlarmRepository) {
     var hasBatteryOptimization by remember { mutableStateOf(PermissionManager.isBatteryOptimizationDisabled(context)) }
     var hasNotificationPermission by remember { mutableStateOf(PermissionManager.hasNotificationPermission(context)) }
     var hasAlarmPermission by remember { mutableStateOf(PermissionManager.hasExactAlarmPermission(context)) }
+    var hasDndPermission by remember { mutableStateOf(PermissionManager.hasDndPermission(context)) }
+    var hasPhoneStatePermission by remember { mutableStateOf(PermissionManager.hasPhoneStatePermission(context)) }
 
     DisposableEffect(lifeCycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
@@ -71,6 +73,8 @@ fun MainNavigation(alarmRepository: AlarmRepository) {
                 hasBatteryOptimization = PermissionManager.isBatteryOptimizationDisabled(context)
                 hasNotificationPermission = PermissionManager.hasNotificationPermission(context)
                 hasAlarmPermission = PermissionManager.hasExactAlarmPermission(context)
+                hasDndPermission = PermissionManager.hasDndPermission(context)
+                hasPhoneStatePermission = PermissionManager.hasPhoneStatePermission(context)
             }
         }
         lifeCycleOwner.lifecycle.addObserver(observer)
@@ -227,6 +231,8 @@ fun MainNavigation(alarmRepository: AlarmRepository) {
             hasBatteryOptimization = hasBatteryOptimization,
             hasNotificationPermission = hasNotificationPermission,
             hasAlarmPermission = hasAlarmPermission,
+            hasDndPermission = hasDndPermission,
+            hasPhoneStatePermission = hasPhoneStatePermission,
             onContinue = {
                 hasOverlay = PermissionManager.hasOverlayPermission(context)
                 hasAccessibility = PermissionManager.hasAccessibilityPermission(context, RestrictionAccessibilityService::class.java)
@@ -234,6 +240,8 @@ fun MainNavigation(alarmRepository: AlarmRepository) {
                 hasBatteryOptimization = PermissionManager.isBatteryOptimizationDisabled(context)
                 hasNotificationPermission = PermissionManager.hasNotificationPermission(context)
                 hasAlarmPermission = PermissionManager.hasExactAlarmPermission(context)
+                hasDndPermission = PermissionManager.hasDndPermission(context)
+                hasPhoneStatePermission = PermissionManager.hasPhoneStatePermission(context)
             }
         )
     }

@@ -66,4 +66,16 @@ object PermissionManager {
             true
         }
     }
+    
+    fun hasDndPermission(context: Context): Boolean {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        return notificationManager.isNotificationPolicyAccessGranted
+    }
+
+    fun hasPhoneStatePermission(context: Context): Boolean {
+        return androidx.core.content.ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.READ_PHONE_STATE
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    }
 }

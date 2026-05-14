@@ -4,11 +4,14 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Handler
+import android.telephony.TelephonyManager
 import android.os.IBinder
 import android.os.Looper
 import android.view.Gravity
@@ -56,6 +59,9 @@ class LockOverlayService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     
     private val EXIT_CODE_SENTENCE = "I ACCEPT FULL RESPONSIBILITY FOR DISABLING THIS APP"
+    
+    // Call State Receiver
+    private var phoneStateReceiver: BroadcastReceiver? = null
 
     companion object {
         const val ACTION_START_LOCK = "ACTION_START_LOCK"
@@ -215,6 +221,9 @@ class LockOverlayService : Service() {
             delay(500)
             killAllOtherApps()
         }
+        
+        enableDND()
+        registerPhoneStateReceiver()
     }
 
     private fun killAllOtherApps() {
@@ -245,6 +254,8 @@ class LockOverlayService : Service() {
     private fun stopLock() {
         stopRinging()
         removeOverlay()
+        disableDND()
+        unregisterPhoneStateReceiver()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         RestrictionAccessibilityService.isLockActive = false
@@ -483,8 +494,63 @@ class LockOverlayService : Service() {
             .build()
     }
     
+    private fun enableDND() {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (notificationManager.isNotificationPolicyAccessGranted) {
+            try {
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALARMS)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun disableDND() {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (notificationManager.isNotificationPolicyAccessGranted) {
+            try {
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun registerPhoneStateReceiver() {
+        if (phoneStateReceiver == null) {
+            phoneStateReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    val state = intent?.getStringExtra(TelephonyManager.EXTRA_STATE)
+                    if (state == TelephonyManager.EXTRA_STATE_RINGING || state == TelephonyManager.EXTRA_STATE_OFFHOOK) {
+                        // Hide overlay to allow answering
+                        overlayView?.visibility = View.GONE
+                    } else if (state == TelephonyManager.EXTRA_STATE_IDLE) {
+                        // Show overlay again if still locked
+                        if (RestrictionAccessibilityService.isLockActive) {
+                            overlayView?.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+            registerReceiver(phoneStateReceiver, IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED))
+        }
+    }
+
+    private fun unregisterPhoneStateReceiver() {
+        if (phoneStateReceiver != null) {
+            try {
+                unregisterReceiver(phoneStateReceiver)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            phoneStateReceiver = null
+        }
+    }
+    
     override fun onDestroy() {
         super.onDestroy()
         removeOverlay()
+        disableDND()
+        unregisterPhoneStateReceiver()
     }
 }
