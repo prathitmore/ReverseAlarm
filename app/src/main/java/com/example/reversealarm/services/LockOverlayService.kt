@@ -62,6 +62,10 @@ class LockOverlayService : Service() {
     
     // Call State Receiver
     private var phoneStateReceiver: BroadcastReceiver? = null
+    
+    // DND State
+    private var previousInterruptionFilter: Int = NotificationManager.INTERRUPTION_FILTER_ALL
+    private var previousNotificationPolicy: NotificationManager.Policy? = null
 
     companion object {
         const val ACTION_START_LOCK = "ACTION_START_LOCK"
@@ -498,7 +502,19 @@ class LockOverlayService : Service() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (notificationManager.isNotificationPolicyAccessGranted) {
             try {
-                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALARMS)
+                previousInterruptionFilter = notificationManager.currentInterruptionFilter
+                previousNotificationPolicy = notificationManager.notificationPolicy
+                
+                // Allow alarms, calls, and repeat callers
+                val newPolicy = NotificationManager.Policy(
+                    NotificationManager.Policy.PRIORITY_CATEGORY_ALARMS or 
+                    NotificationManager.Policy.PRIORITY_CATEGORY_CALLS or 
+                    NotificationManager.Policy.PRIORITY_CATEGORY_REPEAT_CALLERS,
+                    NotificationManager.Policy.PRIORITY_SENDERS_ANY,
+                    NotificationManager.Policy.PRIORITY_SENDERS_ANY
+                )
+                notificationManager.notificationPolicy = newPolicy
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -509,7 +525,10 @@ class LockOverlayService : Service() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (notificationManager.isNotificationPolicyAccessGranted) {
             try {
-                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                if (previousNotificationPolicy != null) {
+                    notificationManager.notificationPolicy = previousNotificationPolicy
+                }
+                notificationManager.setInterruptionFilter(previousInterruptionFilter)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
